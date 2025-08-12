@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usajili wa Ukoo wa Nyahende</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f7f9fc;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2, h3 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    label {
+      font-weight: 600;
+      margin-top: 15px;
+      display: block;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #27ae60;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      margin-top: 20px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #219150;
+    }
+
+    .entry {
+      background: #ecf0f1;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .entry strong {
+      color: #34495e;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 13px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Sajili Wana Ukoo wa Nyahende</h2>
+
+    <form id="familyForm">
+      <label for="name">Jina la Mtu:</label>
+      <input type="text" id="name" required>
+
+      <label for="fatherInput">Jina la Baba:</label>
+      <input type="text" id="fatherInput" required>
+
+      <label for="motherInput">Jina la Mama:</label>
+      <input type="text" id="motherInput" required>
+
+      <label for="relationship">Uhusiano:</label>
+      <select id="relationship" required>
+        <option value="">--Chagua--</option>
+        <option value="Mtoto">Mtoto</option>
+        <option value="Mjukuu">Mjukuu</option>
+        <option value="Kitukuu">Kitukuu</option>
+        <option value="Kilembwe">Kilembwe</option>
+        <option value="Kilembwekezwe">Kilembwekezwe</option>
+        <option value="Ndugu">Ndugu</option>
+      </select>
+
+      <label for="comments">Maoni:</label>
+      <textarea id="comments" rows="4" placeholder="Maoni yoyote ya hiari..."></textarea>
+
+      <button type="submit">Hifadhi</button>
+    </form>
+
+    <h3>Orodha ya Wanafamilia</h3>
+    <div id="list"></div>
+
+    <footer>
+      <p>Prepared by Felician Joseph Nyisulya</p>
+    </footer>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    // 👇 Bandika config yako hapa
+    const firebaseConfig = {
+      apiKey: "API_KEY_YAKO",
+      authDomain: "PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://PROJECT_ID.firebaseio.com",
+      projectId: "PROJECT_ID",
+      storageBucket: "PROJECT_ID.appspot.com",
+      messagingSenderId: "XXXXXXX",
+      appId: "APP_ID_YAKO"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    document.getElementById("familyForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const entry = {
+        name: document.getElementById("name").value,
+        father: document.getElementById("fatherInput").value,
+        mother: document.getElementById("motherInput").value,
+        relationship: document.getElementById("relationship").value,
+        comments: document.getElementById("comments").value,
+        timestamp: Date.now()
+      };
+
+      db.ref("wanafamilia").push(entry);
+      e.target.reset();
+    });
+
+    db.ref("wanafamilia").on("child_added", function(snapshot) {
+      const data = snapshot.val();
+      const div = document.createElement("div");
+      div.className = "entry";
+      div.innerHTML = `
+        <strong>${data.name}</strong> (${data.relationship})<br>
+        Baba: ${data.father} | Mama: ${data.mother}<br>
+        Maoni: ${data.comments || '—'}
+      `;
+      document.getElementById("list").prepend(div);
+    });
+  </script>
+</body>
+</html>
